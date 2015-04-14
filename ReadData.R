@@ -4,3 +4,7 @@ test <- read.arff(unz(description="Data.zip",filename="AstronomyTestData.txt"))
 train <- read.arff(unz(description="Data.zip",filename="AstronomyTrainingData.txt"))
 lownoise <- read.arff(unz(description="Data.zip",filename="LowNoiseData.txt"))
 poslab <- read.arff(unz(description="Data.zip",filename="PossibleLabels.txt"))
+
+dim(test)
+test[1:4,1:5]
+str(test)
