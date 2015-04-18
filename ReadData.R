@@ -11,3 +11,10 @@ summary(lownoise$V1) # oh, these are ID numbers
 names(train)
 table(poslab)
 class(poslab)
+
+names(test)
+names(train)
+
+table(test$class)
+table(train$class)
+table(subset(test,test))
