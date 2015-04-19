@@ -78,6 +78,14 @@ qplot(y = cumsum(lneigval)/sum(lneigval), x = seq(1,length(lneigval), by = 1), g
 # Clustering
 # ============================
 
+# Selecting all variables from "freq3_harmonic_rel_phase_1" to the end
+# and variables "freq(1,2)_harmonic_rel_phase_(1,2,3)"
+
+# reorder variable names into same variable
+newdat <- lndat[,sort(colnames(lndat))]
+newdat <- newdat[,c(grepl(pattern = "harmonics_rel_phase",x = colnames(newdat)),
+                    c(64:82))]
+
 # ========================================================================
 # Decisions to make: Use principal components as variables to cluster on?
 # If so, how many? Or, should we select variables based on their loadings?
