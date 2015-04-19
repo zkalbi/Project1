@@ -54,14 +54,24 @@ ggplot(lneigvec.m, aes(PC, Variable)) +
   theme(axis.text.x = element_blank(), panel.background = element_blank(),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         axis.ticks.x = element_blank()) +
-  ggtitle("Low Noise Data Set")
+  ggtitle("Low Noise Data Set Heat Plot")
 
 # =========================
 # Scree Plot
 # =========================
 qplot(y = lneigval/sum(lneigval), x = seq(1,length(lneigval), by = 1), geom = "line") +
   geom_point() + xlab("Number of Eigenvalues") +
-  ylab("Proportion of Variance Explained")
+  ylab("Proportion of Variance Explained") +
+  ggtitle("Low Noise Data Set Scree Plot")
+
+
+# =========================
+# Cumulative Explained Plot
+# =========================
+qplot(y = cumsum(lneigval)/sum(lneigval), x = seq(1,length(lneigval), by = 1), geom = "line") +
+  geom_point() + xlab("Number of Eigenvalues") +
+  ylab("Proportion of Variance Explained") +
+  ggtitle("Low Noise Data Set Cumulative Variance Explained")
 
 
 # ============================
