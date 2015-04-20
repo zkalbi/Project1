@@ -81,33 +81,25 @@ newdat <- dat[,sort(colnames(dat))]
 newdat <- newdat[,c(grepl(pattern = "harmonics_rel_phase",x = colnames(newdat)),
                     c(64:82))]
 
+# creating data chunks
 new1=newdat[n1,]
 new2=newdat[n2,]
 new3=newdat[n3,]
 new4=newdat[n4,]
 new5=newdat[n5,]
 
-####Running K Means on first data set
-library(fastICA)
-library(kernlab)
-library(fpc)
-library(protoclust)
-library(cluster)
-library(kknn)
+####Running K Means on first data set  chunk
 library(mclust)
-library(EMCluster)
+library(fpc)
+
+kc1 <- kmeansruns(new1, krange = 2:25, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
+kc2 <- kmeansruns(new2, krange = 2:25, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
+kc3 <- kmeansruns(new3, krange = 2:25, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
+kc4 <- kmeansruns(new4, krange = 2:25, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
+kc5 <- kmeansruns(new5, krange = 2:25, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
+
+qplot(y = kc1$crit[-1], x = seq(2, length(kc1$crit), by = 1), geom = "line") +
+  geom_point() + xlab("Number of Clusters") + ylab("Average Silhouette Value") +
+  ggtitle("Average Silhouette by Number of Clusters on First Subset of Test Data")
 
 
-kc1 <- kmeansruns(new1, krange = 4, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
-
-
-
-# kmeans
-clusts <- kmeans(na.omit(test[,c(-1,-87)]),centers=18)
-
-plot(scores[,1] ~ scores[,2],col=clusts$cluster)
-
-persp()
-
-# heirarchical clustering
-hclust(dist(na.omit(test[,c(-1,-87)]))) # need to reduce dimension
