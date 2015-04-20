@@ -22,7 +22,7 @@ lndat <- na.omit(lntest[,c(-1,-87)])[,-which(vars==0)]
 lnpcs <- princomp(x=lndat,scores=TRUE,cor=TRUE)
 
 lneigvec <- lnpcs$loading
-lneigval <- lnpcs$sdev
+lneigval <- (lnpcs$sdev)^2
 lnscores <- lnpcs$scores
 
 dim(lneigvec)
@@ -82,21 +82,64 @@ qplot(y = cumsum(lneigval)/sum(lneigval), x = seq(1,length(lneigval), by = 1), g
 # and variables "freq(1,2)_harmonic_rel_phase_(1,2,3)"
 
 # reorder variable names into same variable
-newdat <- lndat[,sort(colnames(lndat))]
-newdat <- newdat[,c(grepl(pattern = "harmonics_rel_phase",x = colnames(newdat)),
+lnnewdat <- lndat[,sort(colnames(lndat))]
+lnnewdat <- lnnewdat[,c(grepl(pattern = "harmonics_rel_phase",x = colnames(lnnewdat)),
                     c(64:82))]
 
-# ========================================================================
-# Decisions to make: Use principal components as variables to cluster on?
-# If so, how many? Or, should we select variables based on their loadings?
-# ========================================================================
+# randomly select a subset of observations to cluster on... for lack of computing power
+set.seed(623)
+lnnewdatsub <- sample_n(tbl = lnnewdat, size = 6000) #in dplyr package
 
+# ============================
 # kmeans
-clusts <- kmeans(na.omit(lntest[,c(-1,-87)]),centers=18)
+# ============================
+library(fastICA)
+library(kernlab)
+library(fpc)
+library(protoclust)
+library(cluster)
+library(kknn)
+library(mclust)
+library(EMCluster)
 
-plot(scores[,1] ~ scores[,2],col=clusts$cluster)
+clusts <- kmeansruns(lnnewdatsub, krange = 1:25, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
 
-persp()
+clusts2 <- kmeansruns(lnnewdat, krange = 2:25, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
 
-# heirarchical clustering
-hclust(dist(na.omit(lntest[,c(-1,-87)]))) # need to reduce dimension
+# silhouette plot
+qplot(y = clusts2$crit[-1], x = seq(2, length(clusts2$crit), by = 1), geom = "line") +
+  geom_point() + xlab("Number of Clusters") + ylab("Average Silhouette Value") +
+  ggtitle("Average Silhouette by Number of Clusters on Random Subset of Low Noise Data")
+
+# clustering is dumb - similar results were obtained using 4000 observations
+
+
+# ============================
+# hierarchical clustering
+# ============================
+# randomly select a subset of observations to cluster on... for lack of computing power
+
+lnhclust = hclust(dist(lnnewdat),method="centroid") # need to reduce dimension
+
+#Working on this...
+lnhclust25=cutree(lnhclust, k = 25)
+
+plot(lnhclust,leaflab="none")
+
+library(sparcl)
+
+y=cutree(lnhclust,25)
+ColorDendrogram(lnhclust,y=y,labels=names(y))
+############################################
+hc=as.dendrogram(lnhclust)
+plot(cut(hc,h=40)$upper)
+
+library(ggdendro)
+ggdendrogram(cut(hc,h=40)$upper)
+
+
+######Visualize Low Noise Clusters with PCA#########
+clusts3 <- kmeansruns(lnnewdat, krange = 4, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
+
+
+qplot(Comp.1,Comp.2,data=as.data.frame(lnscores),color=as.factor(clusts3$cluster))
