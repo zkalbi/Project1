@@ -67,3 +67,16 @@ plot(cut(hcavg, h=.03)$lower[[2]],
 ggsave('b.png', height = 5, width = 5)
 
 
+<<<<<<< HEAD
+=======
+names(train)
+table(poslab)
+class(poslab)
+
+names(test)
+names(train)
+
+table(test$class)
+table(train$class)
+table(subset(test,test))
+>>>>>>> 3d7da37773e1bf102c10c98a638a30a7d6a2f7ec
