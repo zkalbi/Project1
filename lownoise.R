@@ -117,28 +117,51 @@ qplot(y = clusts2$crit[-1], x = seq(2, length(clusts2$crit), by = 1), geom = "li
 # ============================
 # hierarchical clustering
 # ============================
+library(protoclust)
+
 # randomly select a subset of observations to cluster on... for lack of computing power
 
 lnhclust = hclust(dist(lnnewdat),method="centroid") # need to reduce dimension
 
-#Working on this...
+# Heirarchical Clustering with Centroid Linkage
 lnhclust25=cutree(lnhclust, k = 25)
 
-plot(lnhclust,leaflab="none")
+plot(lnhclust25)
 
-library(sparcl)
+# MINIMAX Linkage
+plnhclust <- protoclust(dist(lnnewdat))
+plnhclust25 <- protocut(plnhclust, k = 25)
 
-y=cutree(lnhclust,25)
-ColorDendrogram(lnhclust,y=y,labels=names(y))
+
+
+
 ############################################
 hc=as.dendrogram(lnhclust)
-plot(cut(hc,h=40)$upper)
+plot(cut(hc,h=40.5)$upper)
 
 library(ggdendro)
-ggdendrogram(cut(hc,h=40)$upper)
+ggdendrogram(cut(hc,h=40)$upper,labels=FALSE,leaf_labels=FALSE)
+
+
+library(cluster)
+# silhouette values for centroid link
+for(k in 2:25)
+  plot(silhouette(x=cutree(lnhclust, k = 25),dist=dist(lnnewdat)), main = paste("k = ",k), do.n.k=FALSE)
+mtext("PAM(Ruspini) as in Kaufman & Rousseeuw, p.101",
+      outer = TRUE, font = par("font.main"), cex = par("cex.main")); frame()
+
+
 
 
 ######Visualize Low Noise Clusters with PCA#########
+
+qplot(Comp.1,Comp.2,data=as.data.frame(lnscores),color=lnhclust25) +
+  ggtitle("Heirarchical Clustering with Centroid Linkage")
+
+library(car)
+
+
+
 clusts3 <- kmeansruns(lnnewdat, krange = 4, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
 
 

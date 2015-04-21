@@ -59,11 +59,6 @@ qplot(y = eigval/sum(eigval), x = seq(1,length(eigval), by = 1), geom = "line") 
 # Clustering
 # ============================
 
-# ========================================================================
-# Decisions to make: Use principal components as variables to cluster on?
-# If so, how many? Or, should we select variables based on their loadings?
-# ========================================================================
-
 #########Partitioning dataset into five subsets###########
 ### Creating Five Sets#####
 N=1:dim(dat)[1]
@@ -88,7 +83,7 @@ new3=newdat[n3,]
 new4=newdat[n4,]
 new5=newdat[n5,]
 
-####Running K Means on first data set  chunk
+####Running K Means on first subset
 library(mclust)
 library(fpc)
 
@@ -98,8 +93,19 @@ kc3 <- kmeansruns(new3, krange = 2:25, criterion = 'asw', iter.max = 100, runs =
 kc4 <- kmeansruns(new4, krange = 2:25, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
 kc5 <- kmeansruns(new5, krange = 2:25, criterion = 'asw', iter.max = 100, runs = 5, critout = TRUE)
 
-qplot(y = kc1$crit[-1], x = seq(2, length(kc1$crit), by = 1), geom = "line") +
+silhouettes <- cbind(Subset1 = kc1$crit[-1], Subset2 = kc2$crit[-1],
+                     Subset3 = kc3$crit[-1], Subset4 = kc4$crit[-1],
+                     Subset5 = kc5$crit[-1])
+
+silhouettes <- melt(silhouettes)
+names(silhouettes) <- c("k", "Subset", "AverageSilhouette")
+
+qplot(data = silhouettes, y = AverageSilhouette, x = k+1,
+      color = Subset, lty = Subset, group = Subset, geom="line") +
   geom_point() + xlab("Number of Clusters") + ylab("Average Silhouette Value") +
-  ggtitle("Average Silhouette by Number of Clusters on First Subset of Test Data")
+  ggtitle("Average Silhouette vs Number of Clusters by Subset of Test Data")
+  
+
+
 
 
